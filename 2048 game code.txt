@@ -1,0 +1,167 @@
+2048 game input
+
+
+import random
+import os
+import sys
+
+def initialize_grid(size=4):
+    """Initialize a grid with zeros."""
+    return [[0] * size for _ in range(size)]
+
+def add_tile(grid):
+    """Add a new tile (2 or 4) to a random empty cell."""
+    empty_cells = [(r, c) for r in range(len(grid)) for c in range(len(grid)) if grid[r][c] == 0]
+    if empty_cells:
+        r, c = random.choice(empty_cells)
+        grid[r][c] = 4 if random.random() < 0.1 else 2
+
+def slide_left(row):
+    """Slide tiles in a single row to the left and merge them."""
+    non_zero = [i for i in row if i != 0]
+    new_row = []
+    skip = False
+    for i in range(len(non_zero)):
+        if skip:
+            skip = False
+            continue
+        if i + 1 < len(non_zero) and non_zero[i] == non_zero[i + 1]:
+            new_row.append(non_zero[i] * 2)
+            skip = True
+        else:
+            new_row.append(non_zero[i])
+    new_row.extend([0] * (len(row) - len(new_row)))
+    return new_row
+
+def move_left(grid):
+    """Move all tiles in the grid to the left."""
+    for r in range(len(grid)):
+        grid[r] = slide_left(grid[r])
+
+def move_right(grid):
+    """Move all tiles in the grid to the right."""
+    for r in range(len(grid)):
+        grid[r] = slide_left(grid[r][::-1])[::-1]
+
+def move_up(grid):
+    """Move all tiles in the grid upwards."""
+    grid[:] = list(map(list, zip(*grid)))
+    move_left(grid)
+    grid[:] = list(map(list, zip(*grid)))
+
+def move_down(grid):
+    """Move all tiles in the grid downwards."""
+    grid[:] = list(map(list, zip(*grid)))
+    move_right(grid)
+    grid[:] = list(map(list, zip(*grid)))
+
+def check_game_over(grid):
+    """Check if there are no moves left."""
+    for r in range(len(grid)):
+        for c in range(len(grid)):
+            if grid[r][c] == 0:
+                return False
+            if c < len(grid) - 1 and grid[r][c] == grid[r][c + 1]:
+                return False
+            if r < len(grid) - 1 and grid[r][c] == grid[r + 1][c]:
+                return False
+    return True
+
+def print_grid(grid):
+    """Print the grid to the console."""
+    os.system('cls' if os.name == 'nt' else 'clear')
+    for row in grid:
+        print("\t".join(str(num) if num != 0 else '.' for num in row))
+        print()
+
+def get_move():
+    """Get the user's move."""
+    move = input("Enter move (WASD): ").upper()
+    return move
+
+def main():
+    size = 4
+    grid = initialize_grid(size)
+    add_tile(grid)
+    add_tile(grid)
+    print("Welcome to 2048!")
+
+    while True:
+        print_grid(grid)
+        if check_game_over(grid):
+            print("Game Over!")
+            break
+        
+        move = get_move()
+        if move == 'W':
+            move_up(grid)
+        elif move == 'S':
+            move_down(grid)
+        elif move == 'A':
+            move_left(grid)
+        elif move == 'D':
+            move_right(grid)
+        else:
+            print("Invalid move. Use W (up), A (left), S (down), D (right).")
+            continue
+        
+        add_tile(grid)
+
+if __name__ == "__main__":
+    main()
+
+
+
+out put
+
+
+To run the game, simply execute the script in a Python environment. The game will prompt you to enter moves using W, A, S, and D for up, left, down, and right respectively.
+
+
+[?2004l
+Welcome to 2048!
+[H[2J[3J2	.	.	.
+
+.	.	.	.
+
+2	.	.	.
+
+.	.	.	.
+
+Enter move (WASD): s
+[H[2J[3J.	.	.	.
+
+.	.	.	.
+
+.	2	.	.
+
+4	.	.	.
+
+Enter move (WASD): w
+[H[2J[3J4	2	.	.
+
+.	.	.	2
+
+.	.	.	.
+
+.	.	.	.
+
+Enter move (WASD): a
+[H[2J[3J4	2	.	.
+
+2	.	.	.
+
+.	.	.	.
+
+.	2	.	.
+
+Enter move (WASD): d
+[H[2J[3J.	.	4	2
+
+.	.	4	2
+
+.	.	.	.
+
+.	.	.	2
+
+Enter move (WASD):
